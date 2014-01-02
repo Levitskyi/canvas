@@ -1,167 +1,47 @@
 <!DOCTYPE html>
 <head>
 	<title>Canvas</title>
-	<meta charset="utf-8">	
-	<script src="http://code.jquery.com/jquery-1.10.1.js"></script>			
+	<meta charset="utf-8">
+	<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700' rel='stylesheet' type='text/css'>
+	<script src="http://code.jquery.com/jquery-1.10.1.js"></script>
+	<link href="style.css" rel="stylesheet">	
 </head>
-<body onload="">
-	<div align="center">
-        <canvas id="myCanvas" width="500" height="200" style="border:2px solid black;z-index: 1;
-position: relative;"></canvas>
-        <br />
-		<canvas id="Canvas" width="500" height="200" style="border:2px solid black;z-index: 0;position: relative;
-top: -209px;"></canvas>
-		<br />		
-        <button id="clearArea">Clear Area</button>
-		<button id="drawLine">Draw Line</button>
-		<button id="drawCircle">Draw Cricle</button>
-		<button id="canvasToImg">To Image</button>	
-		<a href="javascript:return false;" id="downloadImage"><button id="saveImg">Download Image</button></a>		
-        Line width : <select id="selWidth">
-            <option value="1">1</option>
-            <option value="3">3</option>
-            <option value="5">5</option>
-            <option value="7">7</option>
-            <option value="9" selected="selected">9</option>
-            <option value="11">11</option>
-        </select>
-        Color : <select id="selColor">
-            <option value="black">black</option>
-            <option value="blue" selected="selected">blue</option>
-            <option value="red">red</option>
-            <option value="green">green</option>
-            <option value="yellow">yellow</option>
-            <option value="gray">gray</option>
-        </select>
+<body>
+<div id="wrap">
+	<ul id="drawNavigation">		
+		<li><span class="ankor" id="drawPaint">Paint</span></li>
+		<li><span class="ankor" id="drawLine">Line</span></li>
+		<li><span class="ankor" id="drawCircle">Circle</span></li>
+		<li><span class="ankor" id="drawRect">Rectangle</span></li>
+		<li><span class="ankor" id="drawSquare">Square</span></li>
+		<li><div class="ankor" id="toBackImage">Ctrl + Z</div></li>
+	</ul>
+	<div id="canvas_blocks">
+        <canvas id="myCanvas" width="700" height="500"></canvas>       
+		<canvas id="Canvas" width="700" height="500"></canvas>			
     </div>
+	<div id="right_navigation">
+		<ul>
+			<li><span class="ankor" id="clearArea">Clear Area</span></li>
+			<li><span class="ankor" id="canvasToImg">To Image</span></li>
+			<li>
+				<div class="button">
+				  <a href="javascript:void(0);" id="downloadImage">Download</a>
+				  <p class="top">click to begin</p>
+				  <p class="bottom">Start</p>
+				</div>
+			</li>
+			<li class="text_align">Chose your color:</li>
+			<li><input class="push_button blue" id="colorpick" type="color" name="favcolor"></li>
+			<li class="text_align">Line width:<input id="with_line" type="range" name="points" min="1" max="15"><span class="range_width">8</span></li>						
+		</ul>       
+	</div>
 	<div id="for_img">
 		<img id="canvasImg"></img>
+		<img id="hiddenImg"></img>
 	</div>
-	<script>    
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-var bcanvas = document.getElementById('Canvas');
-var backCanvas = bcanvas.getContext("2d");
-var lastX, lastY;
-var canMouseX;
-var canMouseY;
-var canvasOffset = $("#myCanvas").offset();
-var offsetX = canvasOffset.left;
-var offsetY = canvasOffset.top;
-var isMouseDown = false;
-var tools ={
-"line":0,
-"circle":1
-}
-var fff = true;
-
-	function handleMouseDown(e) {
-		canMouseX = parseInt(e.clientX - offsetX);
-		canMouseY = parseInt(e.clientY - offsetY);
-
-		// Put your mousedown stuff here
-		lastX = canMouseX;
-		lastY = canMouseY;
-		isMouseDown = true;
-	}
-	function handleMouseUp(e) {
-		canMouseX = parseInt(e.clientX - offsetX);
-		canMouseY = parseInt(e.clientY - offsetY);
-		
-			backCanvas.drawImage(canvas,0,0);
-			ctx.drawImage(bcanvas, 0,0);
-		// Put your mouseup stuff here
-		isMouseDown = false;
-	}
-	function handleMouseOut(e) {
-		canMouseX = parseInt(e.clientX - offsetX);
-		canMouseY = parseInt(e.clientY - offsetY);
-
-		// Put your mouseOut stuff here
-		isMouseDown = false;
-	}
-	function handleMouseMove(e) {
-		canMouseX = parseInt(e.clientX - offsetX);
-		canMouseY = parseInt(e.clientY - offsetY);		
-	}	
-	$("#myCanvas").mousedown(function (e) {
-		handleMouseDown(e);			
-	});
-	$("#myCanvas").mousemove(function (e) {
-		handleMouseMove(e);
-		if(fff){
-			drawLine(canMouseX,canMouseY,isMouseDown);
-		}else{
-			drawCircle(lastX,lastY,canMouseX,canMouseY,isMouseDown)
-		}
-	});
-	$("#myCanvas").mouseup(function (e) {
-		handleMouseUp(e);				
-	});
-	$("#myCanvas").mouseout(function (e) {
-		handleMouseOut(e);
-	});
-	
-	function drawLine(x,y,isMouseDown){
-		if(isMouseDown){
-			ctx.beginPath();
-			ctx.strokeStyle = $('#selColor').val();
-			ctx.lineWidth = $('#selWidth').val();
-			ctx.lineJoin = "round";
-			ctx.moveTo(lastX, lastY);
-			ctx.lineTo(canMouseX, canMouseY);
-			ctx.closePath();
-			ctx.stroke();
-		}
-		lastX = x; lastY = y;
-	}
-	function drawCircle(lastX,lastY,canMouseX,canMouseY,isMouseDown) {    
-		if (isMouseDown) {
-			var dx = Math.abs(lastX - canMouseX);
-			var dy = Math.abs(lastY - canMouseY);
-			var midX = (lastX + canMouseX) / 2;
-			var midY = (lastY + canMouseY) / 2;
-			var r = Math.sqrt(dx * dx + dy * dy) / 2;
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.beginPath();
-			ctx.strokeStyle = $('#selColor').val();
-			ctx.lineWidth = $('#selWidth').val();
-			ctx.arc(midX, midY, r, 0, 2 * Math.PI, true);
-			ctx.stroke();
-		}
-    }
-function clearArea() {
-    // Use the identity matrix while clearing the canvas
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-	backCanvas.setTransform(1, 0, 0, 1, 0, 0);
-    backCanvas.clearRect(0, 0, backCanvas.canvas.width, backCanvas.canvas.height);
-}
-function canvasToImage(){
-	/*var img = new Image();
-	var can = document.getElementById('myCanvas');   
-	img.src = can.toDataURL();
-	var toimage = document.getElementById('for_img');    
-    toimage.appendChild(img);*/	
-	document.getElementById('canvasImg').src = document.getElementById('myCanvas').toDataURL();
-}
-(function downloadImg() {	
-	$('#downloadImage').click(function(){						
-		$(this).attr({
-			'download':'myImage',
-			'href':document.getElementById('myCanvas').toDataURL()
-		});	
-	});	
-})();
-$('#clearArea').click(clearArea);
-$('#canvasToImg').click(canvasToImage);
-$('#drawLine').click(function(){
-	fff = true;
-});
-$('#drawCircle').click(function(){
-	fff = false;
-});
-</script>
+</div>
+<script src="myjs.js"></script>
 </body>
 </html>
 
