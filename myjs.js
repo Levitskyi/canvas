@@ -1,30 +1,22 @@
 $(function() {
-"use strict";
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-var bcanvas = document.getElementById('Canvas');
-var backCanvas = bcanvas.getContext("2d");
-var lastX, lastY;
-var canMouseX;
-var canMouseY;
-var isMouseDown = false;
-var modeName = "paint";
-var history_draw = new Array();
-var incr = 0;
-	function handleMouseDown(e) {
-		//canMouseX = parseInt(e.pageX - $("#myCanvas").offset().left);
-		//canMouseY = parseInt(e.pageY - $("#myCanvas").offset().top);
-		/*console.log(e.clientY);
-		console.log(e.pageY);*/
-		
-		// Put your mousedown stuff here
-		lastX = canMouseX;
-		lastY = canMouseY;
-		isMouseDown = true;
-	}
-	function handleMouseUp(e) {
-		//canMouseX = parseInt(e.pageX - $("#myCanvas").offset().left);
-		//canMouseY = parseInt(e.pageY - $("#myCanvas").offset().top);
+    'use strict';
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var bcanvas = document.getElementById('Canvas');
+    var backCanvas = bcanvas.getContext("2d");
+    var lastX, lastY, canMouseX, canMouseY;
+    var isMouseDown = false;
+    var modeName = "paint";
+    var history_draw = [];
+    var incr = 0;
+	var line_width;
+    function handleMouseDown(e) {		
+	// Put your mousedown stuff here
+	    lastX = canMouseX;
+	    lastY = canMouseY;
+	    isMouseDown = true;
+    }
+	function handleMouseUp(e) {		
 		//draw image on backCanvas and after in main canvas
 		backCanvas.drawImage(canvas,0,0);
 		ctx.drawImage(bcanvas, 0,0);
@@ -35,21 +27,16 @@ var incr = 0;
 		isMouseDown = false;
 	}
 	function handleMouseOut(e) {
-		//canMouseX = parseInt(e.pageX - $("#myCanvas").offset().left);
-		//canMouseY = parseInt(e.pageY - $("#myCanvas").offset().top);
-
 		// Put your mouseOut stuff here
 		if(isMouseDown) {
 			isMouseDown = true;			
 		}else {
 			isMouseDown = false;			
-		}		
-		
+		}	
 	}
 	function handleMouseMove(e) {
 		canMouseX = parseInt(e.pageX - $("#myCanvas").offset().left);
 		canMouseY = parseInt(e.pageY - $("#myCanvas").offset().top);		
-		
 	}	
 	$("#myCanvas").mousedown(function (e) {
 		handleMouseDown(e);
@@ -74,12 +61,11 @@ var incr = 0;
             break;
 		case "line":
 			drawLine(canMouseX, canMouseY);
-		break;
+			break;
         default:
             break;
 			}
-		}
-		    
+		}		    
 	});
 	$("#myCanvas").mouseup(function (e) {
 		handleMouseUp(e);				
@@ -180,11 +166,11 @@ var incr = 0;
 	});
 
 	/* manipilations with buttons*/
-		$('#drawNavigation span#drawPaint').addClass('active');
-		$('#drawNavigation span').click(function(){
-			$('#drawNavigation span').removeClass('active');
-			$(this).addClass('active');
-		});
+	$('#drawNavigation span#drawPaint').addClass('active');
+	$('#drawNavigation span').click(function(){
+		$('#drawNavigation span').removeClass('active');
+		$(this).addClass('active');
+	});
 	/*image weight*/
 	$('#downloadImage').mouseenter(function(){		
 		var contentType = 'image/png';
@@ -222,22 +208,23 @@ var incr = 0;
 	}
 	/*width line picker*/
 	$('#with_line').mousemove(function(){
-		var line_width = $('#with_line').val();		
+		line_width = $('#with_line').val();		
 		$('span.range_width').text(''+line_width+'');		
 	});
 	function toBackImage() {
+		var len_history_draw;
 		if(incr >= 2){
-		clearArea();
-		var len_history_draw = history_draw.length;		
-		document.getElementById('hiddenImg').src = history_draw[len_history_draw-2];
-		backCanvas.drawImage(document.getElementById('hiddenImg'), 0,0);
-		ctx.drawImage(document.getElementById('hiddenImg'), 0,0);		
-		history_draw.pop();
-		incr = len_history_draw-1;
+			clearArea();
+			len_history_draw = history_draw.length;		
+			document.getElementById('hiddenImg').src = history_draw[len_history_draw-2];
+			backCanvas.drawImage(document.getElementById('hiddenImg'), 0,0);
+			ctx.drawImage(document.getElementById('hiddenImg'), 0,0);		
+			history_draw.pop();
+			incr = len_history_draw-1;
 		}else{
-		clearArea();
-		history_draw.pop();
-			if(len_history_draw === undefined){
+			clearArea();
+			history_draw.pop();
+			if(len_history_draw === 'undefined'){
 				incr = 0;
 			}			
 		}				
